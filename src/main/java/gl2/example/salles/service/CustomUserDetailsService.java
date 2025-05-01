@@ -16,7 +16,7 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String usernameOrEmail) {
-        return userRepository.findByUsernameOrEmail(usernameOrEmail, usernameOrEmail)
+        return userRepository.findByUsernameOrEmail(usernameOrEmail)
                 .orElseThrow();
     }
 
