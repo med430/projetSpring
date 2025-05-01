@@ -25,14 +25,14 @@ public class AuthService {
     private PasswordEncoder passwordEncoder;
 
     public AuthResponse register(RegisterRequest request) {
-        User user = User.builder()
-                .nom(request.getNom())
-                .prenom(request.getPrenom())
-                .username(request.getUsername())
-                .email(request.getEmail())
-                .password(passwordEncoder.encode(request.getPassword()))
-                .role(Role.User)
-                .build();
+        User user = new User(
+                request.getNom(),
+                request.getPrenom(),
+                request.getEmail(),
+                request.getUsername(),
+                passwordEncoder.encode(request.getPassword()),
+                Role.User
+        );
         userRepository.save(user);
         String token = jwtService.generateToken(user);
         return new AuthResponse(token);
