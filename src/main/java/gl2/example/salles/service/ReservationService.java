@@ -36,7 +36,7 @@ public class ReservationService {
         return reservation;
     }
 
-    public Reservation findById(Long id) {
+    public Reservation findByID(Long id) {
         Reservation reservation = reservationRepository.findById(id)
                 .orElseThrow();
         return reservation;
