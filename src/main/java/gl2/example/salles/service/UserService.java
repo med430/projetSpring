@@ -6,6 +6,8 @@ import gl2.example.salles.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class UserService {
     @Autowired
@@ -26,5 +28,44 @@ public class UserService {
     public User findByUsername(String username) {
         return userRepository.findByUsername(username)
                 .orElseThrow();
+    }
+
+    public User findByEmail(String email){
+        return userRepository.findByEmail(email)
+                .orElseThrow();
+    }
+
+    public List<User> findByNom(String nom) {
+        return userRepository.findAll()
+                .stream().filter(user -> user.getNom().equals(nom)).toList();
+    }
+
+    public List<User> findByPrenom(String prenom) {
+        return userRepository.findAll()
+                .stream().filter(user -> user.getPrenom().equals(prenom)).toList();
+    }
+
+    public List<User> findByRole(String role) {
+        return userRepository.findAll()
+                .stream().filter(user -> user.getRole().toString().equals(role)).toList();
+    }
+
+    public List<User> findAll() {
+        return userRepository.findAll();
+    }
+
+    public void updateUser(Long id, UserRequest userRequest) {
+        User user = userRepository.findById(id)
+                .orElseThrow();
+        user.setNom(userRequest.getNom());
+        user.setPrenom(userRequest.getPrenom());
+        user.setUsername(userRequest.getUsername());
+        user.setEmail(userRequest.getEmail());
+        user.setPassword(userRequest.getPassword());
+        userRepository.save(user);
+    }
+
+    public void deleteUser(Long id) {
+        userRepository.deleteById(id);
     }
 }
