@@ -6,5 +6,5 @@ import lombok.Data;
 public class SalleRequest {
     private Long id;
     private String nom;
-    private String capacite;
+    private int capacite;
 }

@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class SalleResponse {
     private String nom;
-    private String capacite;
+    private int capacite;
 
     public SalleResponse(Salle salle) {
         this.nom = salle.getNom();
