@@ -10,6 +10,8 @@ import gl2.example.salles.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class ReservationService {
     @Autowired
@@ -28,9 +30,61 @@ public class ReservationService {
                         .dateDebut(reservationRequest.getDateDebut())
                         .dateFin(reservationRequest.getDateFin())
                         .user(user)
-                        .salles(salle)
+                        .salle(salle)
                         .build();
         reservationRepository.save(reservation);
         return reservation;
+    }
+
+    public Reservation findById(Long id) {
+        Reservation reservation = reservationRepository.findById(id)
+                .orElseThrow();
+        return reservation;
+    }
+
+    public List<Reservation> findByUser(User user) {
+        List<Reservation> reservations = reservationRepository.findAll()
+                .stream().filter(reservation -> reservation.getUser().equals(user)).toList();
+        return reservations;
+    }
+
+    public List<Reservation> findBySalle(Salle salle) {
+        List<Reservation> reservations = reservationRepository.findAll()
+                .stream().filter(reservation -> reservation.getSalle().equals(salle)).toList();
+        return reservations;
+    }
+
+    public List<Reservation> findByDateDebut(String dateDebut) {
+        List<Reservation> reservations = reservationRepository.findAll()
+                .stream().filter(reservation -> reservation.getDateDebut().equals(dateDebut)).toList();
+        return reservations;
+    }
+
+    public List<Reservation> findByDateFin(String dateFin) {
+        List<Reservation> reservations = reservationRepository.findAll()
+                .stream().filter(reservation -> reservation.getDateFin().equals(dateFin)).toList();
+        return reservations;
+    }
+
+    public List<Reservation> findAll() {
+        return reservationRepository.findAll();
+    }
+
+    public void deleteReservation(Long id) {
+        reservationRepository.deleteById(id);
+    }
+
+    public void updateReservation(Long id, ReservationRequest reservationRequest) {
+        User user = userRepository.findByUsername(reservationRequest.getUser().getUsername())
+                .orElseThrow();
+        Salle salle = sallesRepository.findById(reservationRequest.getSalle().getId())
+                .orElseThrow();
+        Reservation reservation = reservationRepository.findById(id)
+                .orElseThrow();
+        reservation.setDateDebut(reservationRequest.getDateDebut());
+        reservation.setDateFin(reservationRequest.getDateFin());
+        reservation.setUser(user);
+        reservation.setSalle(salle);
+        reservationRepository.save(reservation);
     }
 }

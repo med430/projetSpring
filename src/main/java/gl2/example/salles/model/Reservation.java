@@ -25,5 +25,5 @@ public class Reservation {
     private User user;
 
     @ManyToOne
-    private Salle salles;
+    private Salle salle;
 }

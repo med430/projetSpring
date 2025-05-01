@@ -33,6 +33,12 @@ public class SalleService {
         return salles;
     }
 
+    public List<Salle> findByCapacite(Integer capacite){
+        List<Salle> salles = sallesRepository.findAll()
+                .stream().filter(salle -> salle.getCapacite().equals(capacite)).toList();
+        return salles;
+    }
+
     public List<Salle> findAll(){
         return sallesRepository.findAll();
     }
