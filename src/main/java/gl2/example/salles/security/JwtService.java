@@ -3,6 +3,7 @@ package gl2.example.salles.security;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -12,13 +13,17 @@ import java.util.Date;
 
 @Service
 public class JwtService {
-    private final String secretkey = "afdefetclpfgtofphtyupoqzerfhbabhjxbebwyxyzuvwasdefzrqm";
+    @Value("${jwt.secret}")
+    private String secretkey;
+
+    @Value("${jwt.expiration.hours}")
+    private int expirationHours;
 
     public String generateToken(UserDetails userDetails) {
         return Jwts.builder()
                 .setSubject(userDetails.getUsername())
                 .setIssuedAt(new Date())
-                .setExpiration(Date.from(Instant.now().plus(1, ChronoUnit.HOURS)))
+                .setExpiration(Date.from(Instant.now().plus(expirationHours, ChronoUnit.HOURS)))
                 .signWith(Keys.hmacShaKeyFor(secretkey.getBytes()), SignatureAlgorithm.HS256)
                 .compact();
     }
