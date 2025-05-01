@@ -7,16 +7,17 @@ import gl2.example.salles.model.User;
 import gl2.example.salles.model.enums.Role;
 import gl2.example.salles.repository.UserRepository;
 import gl2.example.salles.security.JwtService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+@RequiredArgsConstructor
 @Service
 public class AuthService {
-    @Autowired
-    private AuthenticationManager authenticationManager;
+    private final AuthenticationManager authenticationManager;
     @Autowired
     private JwtService jwtService;
     @Autowired
@@ -25,14 +26,14 @@ public class AuthService {
     private PasswordEncoder passwordEncoder;
 
     public AuthResponse register(RegisterRequest request) {
-        User user = new User(
-                request.getNom(),
-                request.getPrenom(),
-                request.getEmail(),
-                request.getUsername(),
-                passwordEncoder.encode(request.getPassword()),
-                Role.User
-        );
+        User user = User.builder()
+                .nom(request.getNom())
+                .prenom(request.getPrenom())
+                .username(request.getUsername())
+                .email(request.getEmail())
+                .password(passwordEncoder.encode(request.getPassword()))
+                .role(Role.User)
+                .build();
         userRepository.save(user);
         String token = jwtService.generateToken(user);
         return new AuthResponse(token);
