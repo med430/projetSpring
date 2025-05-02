@@ -17,7 +17,7 @@ public class SalleController {
     private SalleService salleService;
 
     @PostMapping
-    public ResponseEntity<SalleResponse> createSalle(SalleRequest salleRequest) {
+    public ResponseEntity<SalleResponse> createSalle(@RequestBody SalleRequest salleRequest) {
         SalleResponse salleResponse = new SalleResponse(salleService.createSalle(salleRequest));
         return ResponseEntity.ok(salleResponse);
     }
@@ -36,7 +36,7 @@ public class SalleController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<SalleResponse> updateSalle(@PathVariable Long id, SalleRequest salleRequest) {
+    public ResponseEntity<SalleResponse> updateSalle(@PathVariable Long id, @RequestBody SalleRequest salleRequest) {
         salleService.updateSalle(id, salleRequest);
         return ResponseEntity.ok(new SalleResponse(salleService.findByID(id)));
     }

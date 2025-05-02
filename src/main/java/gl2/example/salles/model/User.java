@@ -2,6 +2,7 @@ package gl2.example.salles.model;
 
 import gl2.example.salles.model.enums.Role;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -21,6 +22,7 @@ public class User implements UserDetails {
     private Long id;
     private String nom;
     private String prenom;
+    @NotNull
     @Column(unique = true)
     private String username;
     @Column(unique = true)
