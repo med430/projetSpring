@@ -54,4 +54,5 @@ public class SalleService {
         salle.setCapacite(salleRequest.getCapacite());
         sallesRepository.save(salle);
     }
+
 }

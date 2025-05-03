@@ -36,6 +36,7 @@ public class ReservationController {
         return ResponseEntity.ok(reservationResponse);
     }
 
+
     @PutMapping("/{id}")
     public ResponseEntity<ReservationResponse> updateReservation(@PathVariable Long id, @RequestBody ReservationRequest reservationRequest) {
         Reservation reservation = reservationService.findByID(id);

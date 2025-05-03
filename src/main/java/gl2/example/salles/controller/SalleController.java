@@ -46,4 +46,12 @@ public class SalleController {
         salleService.deleteSalle(id);
         return ResponseEntity.ok().build();
     }
+    @GetMapping("/capacite/{capacite}")
+    public ResponseEntity<List<Salle>> getSallesByCapacite(@PathVariable Integer capacite) {
+        List<Salle> salles = salleService.findByCapacite(capacite);
+        if (salles.isEmpty()) {
+            return ResponseEntity.noContent().build(); // Si aucune salle n'est trouvée
+        }
+        return ResponseEntity.ok(salles); // Si des salles sont trouvées
+    }
 }
