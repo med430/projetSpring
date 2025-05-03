@@ -1,12 +1,21 @@
 package gl2.example.salles.controller;
+import gl2.example.salles.model.Salle;
+import gl2.example.salles.repository.SallesRepository;
 
 import gl2.example.salles.dto.ReservationRequest;
+
+import gl2.example.salles.repository.UserRepository;
+
+import gl2.example.salles.model.User;
 import gl2.example.salles.dto.ReservationResponse;
 import gl2.example.salles.model.Reservation;
 import gl2.example.salles.service.ReservationService;
+
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import java.util.Optional;
 
 import java.util.List;
 
@@ -15,7 +24,10 @@ import java.util.List;
 public class ReservationController {
     @Autowired
     private ReservationService reservationService;
-
+    @Autowired
+    private UserRepository userRepository;
+    @Autowired
+    private SallesRepository salleRepository;
     @PostMapping
     public ResponseEntity<ReservationResponse> createReservation(@RequestBody ReservationRequest reservationRequest) {
         Reservation reservation = reservationService.createReservation(reservationRequest);
@@ -48,5 +60,39 @@ public class ReservationController {
     public ResponseEntity<Void> deleteReservation(@PathVariable Long id) {
         reservationService.deleteReservation(id);
         return ResponseEntity.ok().build();
+    }
+    @GetMapping("/user/{id}")
+    public ResponseEntity<List<Reservation>> getReservationsByUserId(@PathVariable Long id) {
+
+
+        Optional<User> optionalUser = userRepository.findById(id);
+        if (optionalUser.isEmpty()) {
+            return ResponseEntity.notFound().build(); // 404 si user introuvable
+        }
+
+        User user = optionalUser.get();
+        List<Reservation> reservations = reservationService.findByUser(user);
+
+        if (reservations.isEmpty()) {
+            return ResponseEntity.noContent().build(); // 204 si aucune réservation
+        }
+
+        return ResponseEntity.ok(reservations); // 200 avec les réservations
+    }
+    @GetMapping("/salle/{id}")
+    public ResponseEntity<List<Reservation>> getReservationsBySalleId(@PathVariable Long id) {
+        Optional<Salle> optionalSalle = salleRepository.findById(id);
+        if (optionalSalle.isEmpty()) {
+            return ResponseEntity.notFound().build(); // 404 si salle introuvable
+        }
+
+        Salle salle = optionalSalle.get();
+        List<Reservation> reservations = reservationService.findBySalle(salle);
+
+        if (reservations.isEmpty()) {
+            return ResponseEntity.noContent().build(); // 204 si aucune réservation
+        }
+
+        return ResponseEntity.ok(reservations); // 200 avec les réservations
     }
 }

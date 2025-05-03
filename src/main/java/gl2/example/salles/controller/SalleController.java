@@ -54,4 +54,12 @@ public class SalleController {
         }
         return ResponseEntity.ok(salles); // Si des salles sont trouvées
     }
+    @GetMapping("/nom/{nom}")
+    public ResponseEntity<List<Salle>> getSallesByNom(@PathVariable String nom) {
+        List<Salle> salles = salleService.findByNom(nom);
+        if (salles.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.ok(salles);
+    }
 }

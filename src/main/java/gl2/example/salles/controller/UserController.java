@@ -64,4 +64,24 @@ public class UserController {
         userService.deleteUser(id);
         return ResponseEntity.ok().build();
     }
+    @GetMapping("/username/{username}")
+    public ResponseEntity<User> getUserByUsername(@PathVariable String username) {
+        try {
+            User user = userService.findByUsername(username);
+            return ResponseEntity.ok(user);
+        } catch (Exception e) {
+            return ResponseEntity.notFound().build(); // 404 si utilisateur non trouvé
+        }
+    }
+    @GetMapping("/role/{role}")
+    public ResponseEntity<List<User>> getUsersByRole(@PathVariable String role) {
+        List<User> users = userService.findByRole(role);
+
+        if (users.isEmpty()) {
+            return ResponseEntity.noContent().build(); // 204 No Content si aucun user
+        }
+
+        return ResponseEntity.ok(users); // 200 OK avec la liste
+    }
+
 }
