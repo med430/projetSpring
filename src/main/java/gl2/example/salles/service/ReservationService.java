@@ -8,6 +8,8 @@ import gl2.example.salles.repository.ReservationRepository;
 import gl2.example.salles.repository.SallesRepository;
 import gl2.example.salles.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -23,8 +25,11 @@ public class ReservationService {
     private UserRepository userRepository;
 
     public Reservation createReservation(ReservationRequest reservationRequest) {
-        User user = userRepository.findByUsername(reservationRequest.getUser().getUsername())
+        User user = userRepository.findByUsernameOrEmail(reservationRequest.getUser().getUsername(), reservationRequest.getUser().getEmail())
                 .orElseThrow();
+        if(!IsCurrentUser(user)) {
+            throw new RuntimeException();
+        }
         Salle salle = sallesRepository.findById(reservationRequest.getSalle().getId())
                 .orElseThrow();
         Reservation reservation = Reservation.builder()
@@ -77,16 +82,27 @@ public class ReservationService {
     }
 
     public void deleteReservation(Long id) {
+        Reservation reservation = reservationRepository.findById(id).get();
+        User user = reservation.getUser();
+        if(!IsCurrentUser(user)) {
+            throw new RuntimeException();
+        }
         reservationRepository.deleteById(id);
     }
 
     public void updateReservation(Long id, ReservationRequest reservationRequest) {
         User user = userRepository.findByUsername(reservationRequest.getUser().getUsername())
                 .orElseThrow();
+        if(!IsCurrentUser(user)) {
+            throw new RuntimeException();
+        }
         Salle salle = sallesRepository.findById(reservationRequest.getSalle().getId())
                 .orElseThrow();
         Reservation reservation = reservationRepository.findById(id)
                 .orElseThrow();
+        if(!IsCurrentUser(reservation.getUser())) {
+            throw new RuntimeException();
+        }
         reservation.setDateDebut(reservationRequest.getDateDebut());
         reservation.setDateFin(reservationRequest.getDateFin());
         reservation.setUser(user);
@@ -95,6 +111,13 @@ public class ReservationService {
             return;
         }
         reservationRepository.save(reservation);
+    }
+
+    private boolean IsCurrentUser(User user) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName();
+        User current_user = userRepository.findByUsername(username).get();
+        return current_user.equals(user);
     }
 
     private boolean checkIntersectionDates(LocalDate dateDebut, LocalDate dateFin, Salle salle){

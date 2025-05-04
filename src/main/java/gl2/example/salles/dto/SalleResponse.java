@@ -9,10 +9,12 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class SalleResponse {
+    private Long id;
     private String nom;
     private int capacite;
 
     public SalleResponse(Salle salle) {
+        this.id = salle.getId();
         this.nom = salle.getNom();
         this.capacite = salle.getCapacite();
     }
