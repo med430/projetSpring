@@ -34,7 +34,7 @@ public class ReservationService {
                         .salle(salle)
                         .build();
 
-        if(checkIntersectionDates(reservation.getDateDebut(), reservation.getDateFin(), salle)){
+        if(checkIntersectionDates(reservation.getDateDebut(), reservation.getDateFin(), salle)) {
             return null;
         }
 
@@ -91,12 +91,14 @@ public class ReservationService {
         reservation.setDateFin(reservationRequest.getDateFin());
         reservation.setUser(user);
         reservation.setSalle(salle);
+        if(checkIntersectionDates(reservation.getDateDebut(), reservation.getDateFin(), salle)) {
+            return;
+        }
         reservationRepository.save(reservation);
     }
 
     private boolean checkIntersectionDates(LocalDate dateDebut, LocalDate dateFin, Salle salle){
-        Long salleId = salle.getId();
-        List<Reservation> r = reservationRepository.findByIntersectionDatesAndSalle(dateDebut, dateFin, salleId);
+        List<Reservation> r = reservationRepository.findByIntersectionDatesAndSalle(dateDebut, dateFin, salle);
         return r.size() > 0;
     }
 }
