@@ -11,12 +11,14 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ReservationResponse {
+    private Long id;
     private LocalDate dateDebut;
     private LocalDate dateFin;
     private UserResponse user;
     private SalleResponse salle;
 
     public ReservationResponse(Reservation reservation) {
+        id = reservation.getId();
         dateDebut = reservation.getDateDebut();
         dateFin = reservation.getDateFin();
         user = new UserResponse(reservation.getUser());

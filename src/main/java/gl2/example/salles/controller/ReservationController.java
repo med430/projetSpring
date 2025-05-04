@@ -31,6 +31,9 @@ public class ReservationController {
     @PostMapping
     public ResponseEntity<ReservationResponse> createReservation(@RequestBody ReservationRequest reservationRequest) {
         Reservation reservation = reservationService.createReservation(reservationRequest);
+        if(reservation == null) {
+            return ResponseEntity.badRequest().build();
+        }
         ReservationResponse reservationResponse = new ReservationResponse(reservation);
         return ResponseEntity.ok(reservationResponse);
     }
@@ -62,7 +65,7 @@ public class ReservationController {
         return ResponseEntity.ok().build();
     }
     @GetMapping("/user/{id}")
-    public ResponseEntity<List<Reservation>> getReservationsByUserId(@PathVariable Long id) {
+    public ResponseEntity<List<ReservationResponse>> getReservationsByUserId(@PathVariable Long id) {
 
 
         Optional<User> optionalUser = userRepository.findById(id);
@@ -72,15 +75,12 @@ public class ReservationController {
 
         User user = optionalUser.get();
         List<Reservation> reservations = reservationService.findByUser(user);
+        List<ReservationResponse> reservationResponses = reservations.stream().map(ReservationResponse::new).toList();
 
-        if (reservations.isEmpty()) {
-            return ResponseEntity.noContent().build(); // 204 si aucune réservation
-        }
-
-        return ResponseEntity.ok(reservations); // 200 avec les réservations
+        return ResponseEntity.ok(reservationResponses); // 200 avec les réservations
     }
     @GetMapping("/salle/{id}")
-    public ResponseEntity<List<Reservation>> getReservationsBySalleId(@PathVariable Long id) {
+    public ResponseEntity<List<ReservationResponse>> getReservationsBySalleId(@PathVariable Long id) {
         Optional<Salle> optionalSalle = salleRepository.findById(id);
         if (optionalSalle.isEmpty()) {
             return ResponseEntity.notFound().build(); // 404 si salle introuvable
@@ -88,11 +88,8 @@ public class ReservationController {
 
         Salle salle = optionalSalle.get();
         List<Reservation> reservations = reservationService.findBySalle(salle);
+        List<ReservationResponse> reservationResponses = reservations.stream().map(ReservationResponse::new).toList();
 
-        if (reservations.isEmpty()) {
-            return ResponseEntity.noContent().build(); // 204 si aucune réservation
-        }
-
-        return ResponseEntity.ok(reservations); // 200 avec les réservations
+        return ResponseEntity.ok(reservationResponses); // 200 avec les réservations
     }
 }

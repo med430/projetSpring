@@ -9,12 +9,14 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserResponse {
+    private Long id;
     private String nom;
     private String prenom;
     private String username;
     private String email;
 
     public UserResponse(User user) {
+        this.id = user.getId();
         this.nom = user.getNom();
         this.prenom = user.getPrenom();
         this.username = user.getUsername();

@@ -10,6 +10,7 @@ import gl2.example.salles.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -32,6 +33,11 @@ public class ReservationService {
                         .user(user)
                         .salle(salle)
                         .build();
+
+        if(checkIntersectionDates(reservation.getDateDebut(), reservation.getDateFin(), salle)){
+            return null;
+        }
+
         reservationRepository.save(reservation);
         return reservation;
     }
@@ -86,5 +92,11 @@ public class ReservationService {
         reservation.setUser(user);
         reservation.setSalle(salle);
         reservationRepository.save(reservation);
+    }
+
+    private boolean checkIntersectionDates(LocalDate dateDebut, LocalDate dateFin, Salle salle){
+        Long salleId = salle.getId();
+        List<Reservation> r = reservationRepository.findByIntersectionDatesAndSalle(dateDebut, dateFin, salleId);
+        return r.size() > 0;
     }
 }
