@@ -31,13 +31,26 @@ public class SecurityConfig {
         http.csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/**").permitAll()
-                        .requestMatchers("/api/**").authenticated()
-                        .requestMatchers(HttpMethod.POST, "api/salles").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.PUT, "api/salles/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "api/salles/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.POST, "api/user").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.PUT, "api/user/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "api/user/**").hasRole("ADMIN")
+
+                        // Autorisations pour les réservations
+                        .requestMatchers(HttpMethod.GET, "/api/reservations/**").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/api/reservations/**").hasAnyRole("User", "ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/reservations/**").hasAnyRole("User", "ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/reservations/**").hasAnyRole("User", "ADMIN")
+
+                        // Autorisations pour les salles (lecture seule pour USER)
+                        .requestMatchers(HttpMethod.GET, "/api/salles/**").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/api/salles/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/salles/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/salles/**").hasRole("ADMIN")
+
+                        // Autorisations pour les users (lecture seule pour USER)
+                        .requestMatchers(HttpMethod.GET, "/api/user/**").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/api/user/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/user/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/user/**").hasRole("ADMIN")
+
+                        // Toutes les autres requêtes nécessitent une authentification
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session

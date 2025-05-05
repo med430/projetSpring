@@ -44,6 +44,7 @@
         }
         .available { background-color: #ddffdd; }
         .nav-links { display: flex; gap: 15px; }
+        .loading { opacity: 0.5; pointer-events: none; }
     </style>
 </head>
 <body>
@@ -66,5 +67,64 @@
         </div>
     </div>
 </div>
+
+<script th:inline="javascript">
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                loadMonth(this.dataset.url);
+            });
+        });
+    });
+
+    function loadMonth(url) {
+        const calendarContent = document.getElementById('calendar-content');
+        calendarContent.classList.add('loading');
+
+        fetch(url, {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'Authorization': 'Bearer ' + localStorage.getItem('jwtToken') // Stockez le token dans localStorage
+            }
+        })
+            .then(response => {
+                if (!response.ok) throw new Error('Erreur ' + response.status);
+                return response.text();
+            })
+            .then(html => {
+                calendarContent.innerHTML = html;
+                updateMonthTitle(url);
+            })
+            .catch(error => {
+                console.error('Erreur:', error);
+                alert('Accès refusé. Token invalide ou expiré.');
+            })
+            .finally(() => {
+                calendarContent.classList.remove('loading');
+            });
+    }
+
+    function updateMonthTitle(url) {
+        // Extraire l'année et le mois de l'URL
+        const matches = url.match(/\/(\d{4})\/(\d{1,2})$/);
+        if (matches) {
+            const year = parseInt(matches[1]);
+            const month = parseInt(matches[2]);
+            const monthName = new Date(year, month - 1).toLocaleString('default', { month: 'long' });
+            document.querySelector('.month-header h2').textContent = `${monthName} ${year}`;
+
+            // Mettre à jour les liens de navigation
+            const prevMonth = new Date(year, month - 2, 1);
+            const nextMonth = new Date(year, month, 1);
+
+            document.querySelectorAll('.nav-link')[0].dataset.url =
+                url.replace(/\/(\d{4})\/(\d{1,2})$/, `/${prevMonth.getFullYear()}/${prevMonth.getMonth() + 1}`);
+
+            document.querySelectorAll('.nav-link')[1].dataset.url =
+                url.replace(/\/(\d{4})\/(\d{1,2})$/, `/${nextMonth.getFullYear()}/${nextMonth.getMonth() + 1}`);
+        }
+    }
+</script>
 </body>
 </html>

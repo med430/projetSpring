@@ -9,11 +9,13 @@ import gl2.example.salles.repository.SallesRepository;
 import gl2.example.salles.service.FileGenerationService;
 import gl2.example.salles.service.ReservationService;
 import gl2.example.salles.service.SalleService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
@@ -140,7 +142,15 @@ public class SalleController {
     public ModelAndView getAgendaView(
             @PathVariable Long id,
             @PathVariable int year,
-            @PathVariable int month) {
+            @PathVariable int month,
+            HttpServletRequest request,
+            @RequestHeader("Authorization") String authHeader) {
+
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            throw new AccessDeniedException("Token manquant ou invalide");
+        }
+
+        String token = authHeader.substring(7);
 
         YearMonth yearMonth = YearMonth.of(year, month);
         Salle salle = sallesRepository.findById(id).orElseThrow();
@@ -152,6 +162,13 @@ public class SalleController {
                         day -> day.getDate().get(WeekFields.of(Locale.getDefault()).weekOfMonth())));
 
         ModelAndView mav = new ModelAndView("agenda");
+
+        if ("XMLHttpRequest".equals(request.getHeader("X-Requested-With"))) {
+            mav.setViewName("agenda :: #calendar-content");
+        } else {
+            mav.setViewName("agenda");
+        }
+
         mav.addObject("salle", salle);
         mav.addObject("weeks", weeks);
         mav.addObject("yearMonth", yearMonth);

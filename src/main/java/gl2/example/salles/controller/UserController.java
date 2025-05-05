@@ -47,6 +47,7 @@ public class UserController {
     public ResponseEntity<UserResponse> makeUser(@PathVariable Long id) {
         User user = userService.findById(id);
         user.setRole(Role.User);
+        userService.save(user);
         UserResponse userResponse = new UserResponse(user);
         return ResponseEntity.ok(userResponse);
     }
@@ -55,6 +56,7 @@ public class UserController {
     public ResponseEntity<UserResponse> makeAdmin(@PathVariable Long id) {
         User user = userService.findById(id);
         user.setRole(Role.ADMIN);
+        userService.save(user);
         UserResponse userResponse = new UserResponse(user);
         return ResponseEntity.ok(userResponse);
     }

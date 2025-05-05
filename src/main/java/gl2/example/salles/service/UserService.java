@@ -2,8 +2,10 @@ package gl2.example.salles.service;
 
 import gl2.example.salles.dto.UserRequest;
 import gl2.example.salles.model.User;
+import gl2.example.salles.model.enums.Role;
 import gl2.example.salles.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -12,6 +14,8 @@ import java.util.List;
 public class UserService {
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     public User createUser(UserRequest userRequest) {
         User user = User.builder()
@@ -19,10 +23,15 @@ public class UserService {
                 .prenom(userRequest.getPrenom())
                 .username(userRequest.getUsername())
                 .email(userRequest.getEmail())
-                .password(userRequest.getPassword())
+                .password(passwordEncoder.encode(userRequest.getPassword()))
+                .role(Role.User)
                 .build();
         userRepository.save(user);
         return user;
+    }
+
+    public User save(User user){
+        return userRepository.save(user);
     }
 
     public User findById(Long id) {
