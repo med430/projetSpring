@@ -22,10 +22,9 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintWriter;
 import java.time.YearMonth;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.time.temporal.WeekFields;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/salles")
@@ -135,6 +134,31 @@ public class SalleController {
         modelAndView.addObject("calendarDays", calendar); // Notez le nom "calendarDays" qui correspond au template
         modelAndView.addObject("salle", salle);
         return modelAndView;
+    }
+
+    @GetMapping("/{id}/agenda/{year}/{month}")
+    public ModelAndView getAgendaView(
+            @PathVariable Long id,
+            @PathVariable int year,
+            @PathVariable int month) {
+
+        YearMonth yearMonth = YearMonth.of(year, month);
+        Salle salle = sallesRepository.findById(id).orElseThrow();
+        List<CalendarDay> calendarDays = fileGenerationService.generateCalendarForSalle(id, yearMonth);
+
+        // Grouper par semaine
+        Map<Integer, List<CalendarDay>> weeks = calendarDays.stream()
+                .collect(Collectors.groupingBy(
+                        day -> day.getDate().get(WeekFields.of(Locale.getDefault()).weekOfMonth())));
+
+        ModelAndView mav = new ModelAndView("agenda");
+        mav.addObject("salle", salle);
+        mav.addObject("weeks", weeks);
+        mav.addObject("yearMonth", yearMonth);
+        mav.addObject("previousMonth", yearMonth.minusMonths(1));
+        mav.addObject("nextMonth", yearMonth.plusMonths(1));
+
+        return mav;
     }
 
 

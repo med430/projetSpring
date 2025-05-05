@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Agenda - <span th:text="${salle.nom}"></span></title>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        .month-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .week {
+            display: flex;
+            margin-bottom: 10px;
+        }
+        .day {
+            flex: 1;
+            border: 1px solid #ddd;
+            padding: 10px;
+            min-height: 80px;
+            position: relative;
+        }
+        .day-header {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .reserved {
+            background-color: #ffdddd;
+            position: relative;
+        }
+        .reserved:hover::after {
+            content: "Réservée par " attr(data-reserved-by);
+            position: absolute;
+            top: -25px;
+            left: 0;
+            background: #333;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 3px;
+            font-size: 12px;
+            white-space: nowrap;
+            z-index: 1;
+        }
+        .available { background-color: #ddffdd; }
+        .nav-links { display: flex; gap: 15px; }
+    </style>
+</head>
+<body>
+<div class="month-header">
+    <h2 th:text="${#temporals.format(yearMonth, 'MMMM yyyy')}"></h2>
+    <div class="nav-links">
+        <a th:href="@{/{id}/agenda/{year}/{month}(id=${salle.id}, year=${previousMonth.year}, month=${previousMonth.monthValue})}">← Mois précédent</a>
+        <a th:href="@{/{id}/agenda/{year}/{month}(id=${salle.id}, year=${nextMonth.year}, month=${nextMonth.monthValue})}">Mois suivant →</a>
+    </div>
+</div>
+
+<div th:each="week : ${weeks}">
+    <div class="week">
+        <div th:each="day : ${week.value}"
+             th:classappend="${day.status == 'Réservée'} ? 'reserved' : 'available'"
+             class="day"
+             th:attr="data-reserved-by=${day.reservedBy}">
+            <div class="day-header" th:text="${#temporals.format(day.date, 'EEEE dd')}"></div>
+            <div th:text="${day.status}"></div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
