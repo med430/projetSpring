@@ -1,5 +1,6 @@
 package gl2.example.salles.service;
 
+import gl2.example.salles.dto.CalendarDay;
 import gl2.example.salles.dto.ReservationRequest;
 import gl2.example.salles.model.Reservation;
 import gl2.example.salles.model.Salle;
@@ -13,7 +14,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.util.List;
+import java.util.*;
 
 @Service
 public class ReservationService {
@@ -112,6 +113,41 @@ public class ReservationService {
         }
         reservationRepository.save(reservation);
     }
+
+    public List<CalendarDay> getCalendarForSalle(Salle salle) {
+        List<Reservation> reservations = findBySalle(salle);
+        Map<LocalDate, String> reservedDates = new HashMap<>();
+
+        for (Reservation res : reservations) {
+            LocalDate d = res.getDateDebut();
+            while (!d.isAfter(res.getDateFin())) {
+                reservedDates.put(d, res.getUser().getUsername());
+                d = d.plusDays(1);
+            }
+        }
+
+        LocalDate start = LocalDate.of(LocalDate.now().getYear(), 1, 1);
+        LocalDate end = start.plusYears(1).minusDays(1);
+        List<CalendarDay> calendar = new ArrayList<>();
+
+        while (!start.isAfter(end)) {
+            String reservedBy = reservedDates.get(start);
+            String status = reservedBy != null ? "Réservée" : "Disponible";
+
+
+            calendar.add(CalendarDay.builder()
+                    .date(start)
+                    .status(status)
+                    .reservedBy(reservedBy)
+                    .build());
+
+            start = start.plusDays(1);
+        }
+
+        return calendar;
+    }
+
+
 
     private boolean IsCurrentUser(User user) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

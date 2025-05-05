@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Calendar for Salle</title>
+    <style>
+        table { border-collapse: collapse; width: 100%; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        .reserved { background-color: #ffcccc; }
+        .available { background-color: #ccffcc; }
+    </style>
+</head>
+<body>
+<h1>Calendar for Salle: <span th:text="${salle.nom}"></span></h1>
+<table>
+    <thead>
+    <tr>
+        <th>Date</th>
+        <th>Status</th>
+        <th>Reserved By</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="day : ${calendarDays}"
+        th:class="${day.status == 'Réservée'} ? 'reserved' : 'available'">
+        <td th:text="${#temporals.format(day.date, 'dd/MM/yyyy')}"></td>
+        <td th:text="${day.status}"></td>
+        <td th:text="${day.reservedBy} ?: '---'"></td>
+    </tr>
+    </tbody>
+</table>
+</body>
+</html>
